@@ -1,0 +1,7 @@
+identificador: int (linha 1)
+identificador: x (linha 1)
+numero: 10 (linha 1)
+identificador: x (linha 2)
+operador: % (linha 2)
+numero: 23 (linha 2)
+numero: 0 (linha 2)
