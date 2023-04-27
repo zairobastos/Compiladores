@@ -1,2 +1,11 @@
+static void Main string[]
 int x = 10;
-x % 23 == 0;
+Main
+if x % 23 == 4 || x+4 == 0 && 3;
+!=
+x + 3 = 8
+x * 4
+- / %
+void
+> >= <= >
+#teste#
