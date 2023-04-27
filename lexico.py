@@ -14,6 +14,7 @@ regex_igualdade = r'==|!='
 regex_operador_logico = r'\|\||&&|!'
 regex_operador_relacional = r'>=|>|<=|<'
 regex_atribuicao = r'='
+regex_tipo_dado = r'int|decimal|bool|char'
 
 # Define uma lista vazia para armazenar os tokens
 tokens = []
@@ -52,6 +53,14 @@ while posicao < len(codigo):
         palavra_reservada = match.group(0)
         tokens.append(('palavra_reservada', palavra_reservada, linha))
         posicao += len(palavra_reservada)
+        continue
+
+    # Verifica se a posição atual corresponde a um tipo de dado
+    match = re.match(regex_tipo_dado, codigo[posicao:])
+    if match:
+        tipo_de_dado = match.group(0)
+        tokens.append(('tipo_de_dado', tipo_de_dado, linha))
+        posicao += len(tipo_de_dado)
         continue
     
     # Verifica se a posição atual corresponde a um identificador
