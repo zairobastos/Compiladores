@@ -1,5 +1,5 @@
 static void Main string[]:
-int x = 10;
+in#t x = 1#0;
 Main
 if x % 23 == 4 || x+4 == 0 && 3{
  

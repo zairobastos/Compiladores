@@ -6,16 +6,18 @@ class Lexico:
     
     # Define as expressões regulares para cada tipo de token
     regexs = {
+        'COMENTÁRIO': r'#[^#]*#',
+        'TIPO DE DADO': r'int[\[\]]*|decimal[\[\]]*|bool[\[\]]*|char[\[\]]*',
         'PALAVRA RESERVADA': r'static|void|Main|if|args|string\[\]',
-        'COMENTÁRIO': r'#.*#',
-        'IDENTIFICADOR': r'[a-zA-Z_][a-zA-Z0-9_]*',
-        'NUMERO': r'\d+',
-        'OPERADOR MATEMÁTICO': r'[+\-*/%]',
+        'IDENTIFICADOR': r'[a-z_][a-zA-Z0-9_]*',
+        'NUMERO DECIMAL': r'\d+.\d+',
+        'NUMERO INTEIRO': r'\d+',
+        'BOOLEANO': r'True|False',
+        'OPERADOR ARITMÉTICO': r'[+\-*/%]',
         'SÍMBOLO DE COMPARAÇÃO': r'==|!=',
         'OPERADOR LÓGICO': r'\|\||&&|!',
         'OPERADOR RELACIONAL': r'>=|>|<=|<',
         'ATRIBUIÇÃO': r'=',
-        'TIPO DE DADO': r'int|decimal|bool|char',
         'SÍMBOLOS': r'[{}():]',
         'ESPAÇO EM BRANCO': r'\s',
         'QUEBRA DE LINHA': r'\n',
