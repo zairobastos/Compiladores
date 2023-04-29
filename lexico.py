@@ -1,5 +1,5 @@
 import re
-class Lexica:
+class Lexico:
     def __init__(self, arquivo):
         with open(arquivo,'r') as arq:
             self.codigo = arq.read()
@@ -7,7 +7,7 @@ class Lexica:
     # Define as expressões regulares para cada tipo de token
     regexs = {
         'PALAVRA RESERVADA': r'static|void|Main|if|args|string\[\]',
-        'COMENTÁRIO': r'^#.*#$',
+        'COMENTÁRIO': r'#.*#',
         'IDENTIFICADOR': r'[a-zA-Z_][a-zA-Z0-9_]*',
         'NUMERO': r'\d+',
         'OPERADOR MATEMÁTICO': r'[+\-*/%]',
@@ -16,6 +16,9 @@ class Lexica:
         'OPERADOR RELACIONAL': r'>=|>|<=|<',
         'ATRIBUIÇÃO': r'=',
         'TIPO DE DADO': r'int|decimal|bool|char',
+        'SÍMBOLOS': r'[{}():]',
+        'ESPAÇO EM BRANCO': r'\s',
+        'QUEBRA DE LINHA': r'\n',
     }
     
     def analisador(self):
@@ -26,14 +29,24 @@ class Lexica:
         while posicao < len(self.codigo):
             match = None
             for tipo, regex in self.regexs.items():
-                match = re.match(regex,self.codigo[posicao:])
+                match = re.match(regex, self.codigo[posicao:])
                 if match:
-                    valor = match.group()
-                    tokens.append((tipo,valor,linha))
-                    posicao += len(valor)
+                    if tipo != 'ESPAÇO EM BRANCO' and tipo != 'QUEBRA DE LINHA':
+                        valor = match.group()
+                        tokens.append((tipo, valor, linha))
+                        posicao += len(valor)
+                    elif tipo == 'QUEBRA DE LINHA':
+                        linha += 1
+                        posicao += 1
+                    else:
+                        posicao += 1
                     break
             else:
-                if self.codigo[posicao] == '\n':
-                    linha += 1
+                tokens.append(('ERROR', self.codigo[posicao], linha))
                 posicao += 1
+
+            if posicao < len(self.codigo) and self.codigo[posicao] == '\n':
+                linha += 1
+                posicao += 1
+
         return tokens

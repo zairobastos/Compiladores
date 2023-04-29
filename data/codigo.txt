@@ -1,7 +1,10 @@
-static void Main string[]
+static void Main string[]:
 int x = 10;
 Main
-if x % 23 == 4 || x+4 == 0 && 3;
+if x % 23 == 4 || x+4 == 0 && 3{
+ 
+}
+45.78
 !=
 x + 3 = 8
 x * 4
@@ -9,4 +12,4 @@ x * 4
 void
 > >= <= >
 #teste#
-r
+r?;
