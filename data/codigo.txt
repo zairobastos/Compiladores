@@ -2,10 +2,10 @@ static void Main string[]:
 in/*t x = 1*/0
 Main
 if x % 23 == 4 || x+4 == 0 && 3{
- 
+"Sim3hr389h13r"'
 }
 45. .431 20.12
-;!=
+!=
 x + 3 = 8
 x * 4
 - / %

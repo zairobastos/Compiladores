@@ -15,6 +15,7 @@ class Lexico:
         'NUMERO DECIMAL ESQ': r'\d+\.',
         'NUMERO INTEIRO': r'\d+',
         'BOOLEANO': r'True|False',
+        'STRING': r'\"[a-zA-Z0-9_]*\"',
         'OPERADOR ARITMÉTICO': r'[+\-*/%]',
         'SÍMBOLO DE COMPARAÇÃO': r'==|!=',
         'OPERADOR LÓGICO': r'\|\||&&|!',
@@ -37,26 +38,29 @@ class Lexico:
                 #match match_regex:
                 #    case 
                 if match_regex:
+                    valor = match_regex.group()
+
                     if tipo == 'QUEBRA DE LINHA':
                         linha += 1
                         posicao += 1
+
                     elif tipo == 'NUMERO DECIMAL DIR':
-                        valor = match_regex.group()
                         valor =  "0" + valor
                         tokens.append((tipo, valor, linha))
                         posicao += len(valor)
+
                     elif tipo == 'NUMERO DECIMAL ESQ':
-                        valor = match_regex.group()
                         valor = valor + '0'
                         tokens.append((tipo, valor, linha))
                         posicao += len(valor)
+
                     elif tipo != 'ESPAÇO EM BRANCO' and tipo != 'COMENTÁRIO':
-                        valor = match_regex.group()
                         tokens.append((tipo, valor, linha))
                         posicao += len(valor)
+
                     else:
-                        valor = match_regex.group()
                         posicao += len(valor)
+
                     break
             else:
                 tokens.append(('ERROR', self.codigo[posicao], linha))
