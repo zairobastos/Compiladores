@@ -6,11 +6,13 @@ class Lexico:
     
     # Define as expressões regulares para cada tipo de token
     regexs = {
-        'COMENTÁRIO': r'#[^#]*#',
+        'COMENTÁRIO': r'\/\*[^#]*\*\/',
         'TIPO DE DADO': r'int[\[\]]*|decimal[\[\]]*|bool[\[\]]*|char[\[\]]*',
         'PALAVRA RESERVADA': r'static|void|Main|if|args|string\[\]',
         'IDENTIFICADOR': r'[a-z_][a-zA-Z0-9_]*',
         'NUMERO DECIMAL': r'\d+.\d+',
+        'NUMERO DECIMAL DIR': r'\.\d+',
+        'NUMERO DECIMAL ESQ': r'\d+\.',
         'NUMERO INTEIRO': r'\d+',
         'BOOLEANO': r'True|False',
         'OPERADOR ARITMÉTICO': r'[+\-*/%]',
@@ -29,23 +31,36 @@ class Lexico:
         posicao = 0
 
         while posicao < len(self.codigo):
-            match = None
+            match_regex = None
             for tipo, regex in self.regexs.items():
-                match = re.match(regex, self.codigo[posicao:])
-                if match:
-                    if tipo != 'ESPAÇO EM BRANCO' and tipo != 'QUEBRA DE LINHA' and tipo != 'COMENTÁRIO':
-                        valor = match.group()
-                        tokens.append((tipo, valor, linha))
-                        posicao += len(valor)
-                    elif tipo == 'QUEBRA DE LINHA':
+                match_regex = re.match(regex, self.codigo[posicao:])
+                #match match_regex:
+                #    case 
+                if match_regex:
+                    if tipo == 'QUEBRA DE LINHA':
                         linha += 1
                         posicao += 1
+                    elif tipo == 'NUMERO DECIMAL DIR':
+                        valor = match_regex.group()
+                        valor =  "0" + valor
+                        tokens.append((tipo, valor, linha))
+                        posicao += len(valor)
+                    elif tipo == 'NUMERO DECIMAL ESQ':
+                        valor = match_regex.group()
+                        valor = valor + '0'
+                        tokens.append((tipo, valor, linha))
+                        posicao += len(valor)
+                    elif tipo != 'ESPAÇO EM BRANCO' and tipo != 'COMENTÁRIO':
+                        valor = match_regex.group()
+                        tokens.append((tipo, valor, linha))
+                        posicao += len(valor)
                     else:
-                        posicao += 1
+                        valor = match_regex.group()
+                        posicao += len(valor)
                     break
             else:
                 tokens.append(('ERROR', self.codigo[posicao], linha))
-                posicao += 1
+                return tokens
 
             if posicao < len(self.codigo) and self.codigo[posicao] == '\n':
                 linha += 1

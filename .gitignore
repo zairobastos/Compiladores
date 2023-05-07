@@ -1,3 +1,2 @@
-
-data/codigo.txt
-data/tokens.txt
+*.txt
+*.pyc
