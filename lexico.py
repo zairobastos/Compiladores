@@ -33,7 +33,7 @@ class Lexico:
             for tipo, regex in self.regexs.items():
                 match = re.match(regex, self.codigo[posicao:])
                 if match:
-                    if tipo != 'ESPAÇO EM BRANCO' and tipo != 'QUEBRA DE LINHA':
+                    if tipo != 'ESPAÇO EM BRANCO' and tipo != 'QUEBRA DE LINHA' and tipo != 'COMENTÁRIO':
                         valor = match.group()
                         tokens.append((tipo, valor, linha))
                         posicao += len(valor)
