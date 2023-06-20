@@ -57,10 +57,14 @@ class Sintatico:
         if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ':':
             self.erro('Simbolo ":"')
 
-    def analisar(self):
-        self.programa()
+        self.declaracoes()
 
-        self.posicao += 1
+        self.comandos()
+
+    # def analisar(self):
+    #     self.programa()
+
+    #     self.posicao += 1
 
     def declaracoes(self):
         while self.proximo_token() and self.proximo_token().tipo == Token.TIPO_DE_DADO:
@@ -68,19 +72,19 @@ class Sintatico:
 
     def declaracao(self):
         tipo = self.proximo_token().valor
-        self.consumir_token(Token.TIPO_DE_DADO)
+        self.consumir_token(Token.TIPO_DE_DADO) #TIPO_DE_DADO JA FAZ UMA LISTA
         self.consumir_token(Token.IDENTIFICADOR)
         if self.proximo_token() and self.proximo_token().tipo == Token.SÍMBOLOS and self.proximo_token().valor == "[":
             self.consumir_token(Token.SÍMBOLOS, "[")
             self.consumir_token(Token.INTEIRO)
             self.consumir_token(Token.SÍMBOLOS, "]")
-        while self.proximo_token() and self.proximo_token().tipo == Token.SÍMBOLOS and self.proximo_token().valor == ",":
+        while self.proximo_token() and self.proximo_token().tipo == Token.SÍMBOLOS and self.proximo_token().valor == ",":   #VERIFICAR QUESTÃO DO "TIPO_DE_DADO JÁ FAZER UMA LISTA"
             self.consumir_token(Token.SÍMBOLOS, ",")
             self.consumir_token(Token.IDENTIFICADOR)
-            if self.proximo_token() and self.proximo_token().tipo == Token.SÍMBOLOS and self.proximo_token().valor == "[":
-                self.consumir_token(Token.SÍMBOLOS, "[")
-                self.consumir_token(Token.INTEIRO)
-                self.consumir_token(Token.SÍMBOLOS, "]")
+            # if self.proximo_token() and self.proximo_token().tipo == Token.SÍMBOLOS and self.proximo_token().valor == "[":
+            #     self.consumir_token(Token.SÍMBOLOS, "[")
+            #     self.consumir_token(Token.INTEIRO)
+            #     self.consumir_token(Token.SÍMBOLOS, "]")
 
     def comandos(self):
         while self.proximo_token() and self.proximo_token().tipo != Token.COMENTÁRIO:
