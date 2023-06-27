@@ -18,13 +18,15 @@ class Sintatico:
 
     def erro(self, esperado):
         if self.token_atual is None:
-            mensagem = f"Fim do código. Esperado: {esperado}"
+            self.erros.append(f"Fim do código. Esperado: {esperado}")
         else:
-            mensagem = f"Erro na linha {self.token_atual[2]}. Esperado: {esperado}. Encontrado: {self.token_atual[0]} \"{self.token_atual[1]}\""
-
-        raise Exception(mensagem)
+            self.erros.append(f"Erro na linha {self.token_atual[2]}. Esperado: {esperado}. Encontrado: {self.token_atual[0]} \"{self.token_atual[1]}\"")
+            
 
     def programa(self):
+        # (Dúvida) a análise é feita por linha?
+        # PRECISO DO ; no final de cada linha para fazer algum tipo de marcador.
+        # Falta a definição de constantes (tipo PI) 
         self.proximo_token()
         if self.token_atual[0] != 'PALAVRA RESERVADA' or self.token_atual[1] != 'static':
             self.erro('Palavra reservada "static"')
@@ -61,30 +63,38 @@ class Sintatico:
 
         self.comandos()
 
-    # def analisar(self):
-    #     self.programa()
-
-    #     self.posicao += 1
-
     def declaracoes(self):
-        while self.proximo_token() and self.proximo_token().tipo == Token.TIPO_DE_DADO:
-            self.declaracao()
+        self.proximo_token()
+        if self.token_atual[0] != 'TIPO DE DADO':
+            self.erro('TIPO DE DADO')
+        else:
+            while self.token_atual[0] == 'TIPO DE DADO':
+                self.declaracao()
 
     def declaracao(self):
-        tipo = self.proximo_token().valor
-        self.consumir_token(Token.TIPO_DE_DADO) #TIPO_DE_DADO JA FAZ UMA LISTA
-        self.consumir_token(Token.IDENTIFICADOR)
-        if self.proximo_token() and self.proximo_token().tipo == Token.SÍMBOLOS and self.proximo_token().valor == "[":
-            self.consumir_token(Token.SÍMBOLOS, "[")
-            self.consumir_token(Token.INTEIRO)
-            self.consumir_token(Token.SÍMBOLOS, "]")
-        while self.proximo_token() and self.proximo_token().tipo == Token.SÍMBOLOS and self.proximo_token().valor == ",":   #VERIFICAR QUESTÃO DO "TIPO_DE_DADO JÁ FAZER UMA LISTA"
-            self.consumir_token(Token.SÍMBOLOS, ",")
-            self.consumir_token(Token.IDENTIFICADOR)
-            # if self.proximo_token() and self.proximo_token().tipo == Token.SÍMBOLOS and self.proximo_token().valor == "[":
-            #     self.consumir_token(Token.SÍMBOLOS, "[")
-            #     self.consumir_token(Token.INTEIRO)
-            #     self.consumir_token(Token.SÍMBOLOS, "]")
+
+        self.proximo_token()
+        if self.token_atual[0] != 'IDENTIFICADOR':
+            self.erro('IDENTIFICADOR')
+
+        self.proximo_token()
+
+        if (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == '['):
+            self.proximo_token()
+            if self.token_atual[0] != 'NUMERO INTEIRO': # Se não for um número inteiro, verificar procedência
+                self.erro('NUMERO INTEIRO')
+            else:
+                self.proximo_token()
+                if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ']':
+                    self.erro('Simbolo "]"')
+
+                self.proximo_token()
+                if (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == ','):
+                    declaracao(self)
+        elif (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == ','):
+            declaracao(self)
+        else:
+            self.erro('SIMBOLO "[" OU SIMBOLO ","')
 
     def comandos(self):
         while self.proximo_token() and self.proximo_token().tipo != Token.COMENTÁRIO:
