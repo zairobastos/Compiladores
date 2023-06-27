@@ -15,18 +15,18 @@ with open("./data/tokens.txt", "w") as arquivo:
         arquivo.write(f"{tipo}: {valor} (linha {linha})\n")
         c+=1
         if(tipo == 'ERROR'):
-            print("Erro na análise léxica: o caractere {} é inesperado na linha {}".format(valor, linha))
+            print("Erro na análise léxica: o caractere '{}' é inesperado na linha {}".format(valor, linha))
             analise_sint = False
             break
 
 
 if(analise_sint):
     analisador_sintatico = Sintatico(tokens)
+    # Inicia a análise sintática
+    analisador_sintatico.programa()
 
-    try:
-        # Inicia a análise sintática
-        analisador_sintatico.programa()
-        print("Análise sintática concluída com sucesso.")
-    except Exception as e:
-        print("Erro na análise sintática:")
-        print(str(e))
+    if(analisador_sintatico.erros.count == 0):
+        print("Análise sintática sem erros concluída com sucesso.")
+    else:
+        for erros in analisador_sintatico.erros:
+            print(erros)
