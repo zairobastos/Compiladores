@@ -1,4 +1,4 @@
-static void Main string[] args): 
-in/*t x = 1*/0
-Main
+static void Main (string[] args): 
+int x, y, z;
+Main;
 if (x % 23 == 4 || x+4 == 0 && 3)

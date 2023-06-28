@@ -8,6 +8,7 @@ class Lexico:
     regexs = {
         'COMENTÁRIO': r'\/\*[^#]*\*\/',
         'TIPO DE DADO': r'int|decimal|bool|char',
+        'CONSTANTE': r'const',
         'PALAVRA RESERVADA': r'static|void|Main|if|args|string\[\]',
         'IDENTIFICADOR': r'[a-z_][a-zA-Z0-9_]*',
         'NUMERO DECIMAL': r'\d+.\d+',
@@ -21,7 +22,7 @@ class Lexico:
         'OPERADOR LÓGICO': r'\|\||&&|!',
         'OPERADOR RELACIONAL': r'>=|>|<=|<',
         'ATRIBUIÇÃO': r'=',
-        'SÍMBOLOS': r'[():,]',
+        'SÍMBOLOS': r'[():,;]',
         'ESPAÇO EM BRANCO': r'\s',
         'QUEBRA DE LINHA': r'\n',
     }

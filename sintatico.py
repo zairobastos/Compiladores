@@ -5,7 +5,6 @@ class Sintatico:
 
     def __init__(self, tokens):
         self.tokens = tokens
-        self.erros = []  # Lista para armazenar os erros encontrados
         self.indice = 0
         self.token_atual = None
 
@@ -18,10 +17,11 @@ class Sintatico:
 
     def erro(self, esperado):
         if self.token_atual is None:
-            self.erros.append(f"Fim do código. Esperado: {esperado}")
+            mensagem = f"Fim do código. Esperado: {esperado}"
         else:
-            self.erros.append(f"Erro na linha {self.token_atual[2]}. Esperado: {esperado}. Encontrado: {self.token_atual[0]} \"{self.token_atual[1]}\"")
-            
+            mensagem = f"Erro na linha {self.token_atual[2]}. Esperado: {esperado}. Encontrado: {self.token_atual[0]} \"{self.token_atual[1]}\""
+ 
+        raise Exception(mensagem)
 
     def programa(self):
         # (Dúvida) a análise é feita por linha?
@@ -81,7 +81,7 @@ class Sintatico:
 
         if (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == '['):
             self.proximo_token()
-            if self.token_atual[0] != 'NUMERO INTEIRO': # Se não for um número inteiro, verificar procedência
+            if self.token_atual[0] != 'NUMERO INTEIRO':
                 self.erro('NUMERO INTEIRO')
             else:
                 self.proximo_token()
@@ -90,9 +90,11 @@ class Sintatico:
 
                 self.proximo_token()
                 if (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == ','):
-                    declaracao(self)
+                    self.declaracao()
         elif (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == ','):
-            declaracao(self)
+            self.declaracao()
+        elif (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == ';'):
+            pass
         else:
             self.erro('SIMBOLO "[" OU SIMBOLO ","')
 

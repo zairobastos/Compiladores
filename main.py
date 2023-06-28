@@ -22,11 +22,10 @@ with open("./data/tokens.txt", "w") as arquivo:
 
 if(analise_sint):
     analisador_sintatico = Sintatico(tokens)
-    # Inicia a análise sintática
-    analisador_sintatico.programa()
-
-    if(analisador_sintatico.erros.count == 0):
-        print("Análise sintática sem erros concluída com sucesso.")
-    else:
-        for erros in analisador_sintatico.erros:
-            print(erros)
+    
+    try:
+        analisador_sintatico.programa()
+        print("Análise sintática concluída com sucesso.")
+    except Exception as e:
+        print("Erro na análise sintática:")
+        print(str(e))
