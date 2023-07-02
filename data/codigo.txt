@@ -1,4 +1,6 @@
 static void Main (string[] args): 
 int x, y[7], z
+decimal i, o, u
+const pi 3.13
 Main
-if (x % 23 == 4 || x+4 == 0 && 3)
+if (x % 23 == 4 || x + 4 == 0 && 3)

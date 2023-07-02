@@ -1,5 +1,8 @@
 from lexico import Lexico
 from sintatico import Sintatico
+import sys
+
+sys.stdout.reconfigure(encoding='utf-8')
 
 nome_arquivo = './data/codigo.txt'
 analisador_lexico = Lexico(nome_arquivo)

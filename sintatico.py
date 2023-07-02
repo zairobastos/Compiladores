@@ -23,9 +23,11 @@ class Sintatico:
  
         raise Exception(mensagem)
     
-    def erro_linha(self, esperado):
-    
-        raise Exception(f"Fim da linha {self.token_atual[2] - 1}. Esperado: {esperado}")
+    def erro_linha(self, esperado, next_line):
+        if(next_line):
+            raise Exception(f"Fim da linha {self.token_atual[2] - 1}. Esperado: {esperado}")
+        
+        raise Exception(f"É esperado uma quebra de linha antes de {esperado}")
 
     def programa(self):
         
@@ -36,68 +38,79 @@ class Sintatico:
 
         self.proximo_token()
         if(linha_codigo != self.token_atual[2]):
-            self.erro_linha('Palavra reservada "void"')
+            self.erro_linha('Palavra reservada "void"', 1)
 
         if self.token_atual[0] != 'PALAVRA RESERVADA' or self.token_atual[1] != 'void':
             self.erro('Palavra reservada "void"')
 
         self.proximo_token()
         if(linha_codigo != self.token_atual[2]):
-            self.erro_linha('Palavra reservada "Main"') 
+            self.erro_linha('Palavra reservada "Main"', 1) 
             
         if self.token_atual[0] != 'PALAVRA RESERVADA' or self.token_atual[1] != 'Main':
             self.erro('Palavra reservada "Main"')
 
         self.proximo_token()
         if(linha_codigo != self.token_atual[2]):
-            self.erro_linha('Simbolo "("') 
+            self.erro_linha('Simbolo "("', 1) 
         if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != '(':
             self.erro('Simbolo "("')
 
         self.proximo_token()
         if(linha_codigo != self.token_atual[2]):
-            self.erro_linha('Palavra reservada "string[]"') 
+            self.erro_linha('Palavra reservada "string[]"', 1) 
         if self.token_atual[0] != 'PALAVRA RESERVADA' or self.token_atual[1] != 'string[]':
             self.erro('Palavra reservada "string[]"')
 
         self.proximo_token()
         if(linha_codigo != self.token_atual[2]):
-            self.erro_linha('Palavra reservada "args"') 
+            self.erro_linha('Palavra reservada "args"', 1) 
         if self.token_atual[0] != 'PALAVRA RESERVADA' or self.token_atual[1] != 'args':
             self.erro('Palavra reservada "args"')  
 
         self.proximo_token()
         if(linha_codigo != self.token_atual[2]):
-            self.erro_linha('Simbolo ")"')    
+            self.erro_linha('Simbolo ")"', 1)    
         if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ')':
             self.erro('Simbolo ")"')
             
 
         self.proximo_token()
         if(linha_codigo != self.token_atual[2]):
-            self.erro_linha('Simbolo ":"')  
+            self.erro_linha('Simbolo ":"', 1)  
 
         if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ':':
             self.erro('Simbolo ":"')   
 
-        self.declaracoes()
-
-        self.comandos()
-
-    def declaracoes(self):
         self.proximo_token()
-        if self.token_atual[0] != 'TIPO DE DADO':
-            self.erro('TIPO DE DADO')
+        if(linha_codigo != self.token_atual[2]):
+            self.declaracoes()
         else:
-            while self.token_atual[0] == 'TIPO DE DADO':
-                self.declaracao()
+            self.erro_linha(f'{self.token_atual[0]} {self.token_atual[1]} na linha {self.token_atual[2]}', 0)
+        
+        self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.comandos()
+        else:
+            self.erro_linha(f'{self.token_atual[0]} {self.token_atual[1]} na linha {self.token_atual[2]}', 0)
+    
+    def declaracoes(self):
+        
+        if self.token_atual[0] != 'TIPO DE DADO' and self.token_atual[0] != 'CONSTANTE':
+            self.erro('TIPO DE DADO OU "CONST"')
+        else:
+            while self.token_atual[0] == 'TIPO DE DADO' or self.token_atual[0] == 'CONSTANTE':
+                if self.token_atual[0] == 'TIPO DE DADO':
+                    self.declaracao()
+                elif self.token_atual[0] == 'CONSTANTE':
+                    self.declaracao_const()
 
-    def declaracao(self): # CRIAR A CONDICIONAL DO CONST -> CONST IDENTIFICADOR VALOR
+    def declaracao(self): 
         linha_codigo = self.token_atual[2]
 
         self.proximo_token()
         if(linha_codigo != self.token_atual[2]):
-            self.erro_linha('IDENTIFICADOR') 
+            self.erro_linha('IDENTIFICADOR', 1) 
         if self.token_atual[0] != 'IDENTIFICADOR':
             self.erro('IDENTIFICADOR')
 
@@ -106,14 +119,14 @@ class Sintatico:
             if (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == '['):
                 self.proximo_token()
                 if(linha_codigo != self.token_atual[2]):
-                    self.erro_linha('NUMERO INTEIRO') 
+                    self.erro_linha('NUMERO INTEIRO', 1) 
                 
                 if self.token_atual[0] != 'NUMERO INTEIRO':
                     self.erro('NUMERO INTEIRO')
                 else:
                     self.proximo_token()
                     if(linha_codigo != self.token_atual[2]):
-                        self.erro_linha('Simbolo "]"') 
+                        self.erro_linha('Simbolo "]"', 1) 
 
                     if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ']':
                         self.erro('Simbolo "]"')
@@ -125,26 +138,45 @@ class Sintatico:
                         else:
                             self.erro('Simbolo ","')
                     else:
-                        self.erro_linha('Simbolo ","')
+                        self.erro_linha('Simbolo ","', 1)
 
             elif (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == ','):
                 self.declaracao()
             else:
                 self.erro('SIMBOLO "[" OU ","')
+        else:
+            self.declaracoes()
 
+    def declaracao_const(self):
+        linha_codigo = self.token_atual[2]
         
+        self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('IDENTIFICADOR', 1) 
+        if self.token_atual[0] != 'IDENTIFICADOR':
+            self.erro('IDENTIFICADOR')
+
+        self.proximo_token()    
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('NUMERO DECIMAL OU INTEIRO', 1)
+        if self.token_atual[0] != 'NUMERO DECIMAL' and self.token_atual[0] != 'NUMERO INTEIRO':
+            self.erro('NUMERO DECIMAL OU INTEIRO')
+    
     def comandos(self):
-        while self.proximo_token() and self.proximo_token().tipo != Token.COMENTÁRIO:
-            self.comando()
+
+        if self.token_atual[0] != 'IDENTIFICADOR' and self.token_atual[1] != 'if':
+            self.erro('IDENTIFICADOR OU PALAVRA RESERVADA "if"')
+        else:
+            while self.token_atual[0] == 'IDENTIFICADOR' or (self.token_atual[0] == 'PALAVRA RESERVADA' and self.token_atual[1] == 'if'):
+                self.comando()
 
     def comando(self):
-        if self.proximo_token() and self.proximo_token().tipo == Token.IDENTIFICADOR:
+        if self.token_atual[0] == 'IDENTIFICADOR':
             self.atribuicao()
-        elif self.proximo_token() and self.proximo_token().tipo == Token.PALAVRA_RESERVADA and self.proximo_token().valor == "if":
+        elif self.token_atual[0] == 'PALAVRA RESERVADA' and self.token_atual[1] == 'if':
             self.condicional()
         else:
-            # Lidar com outros comandos
-            pass
+            self.erro('IDENTIFICADOR OU PALAVRA RESERVADA "if"')
 
     def atribuicao(self):
         self.consumir_token(Token.IDENTIFICADOR)
@@ -174,23 +206,49 @@ class Sintatico:
             self.consumir_token(Token.SÍMBOLOS, "}")
 
     def expressao(self):
-        if self.proximo_token() and self.proximo_token().tipo == Token.IDENTIFICADOR:
-            self.expressao_simples()
-        elif self.proximo_token() and self.proximo_token().tipo == Token.PALAVRA_RESERVADA and self.proximo_token().valor == "!":
+        linha_codigo = self.token_atual[2]
+
+        self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('OPERADOR LÓGICO "!", IDENTIFICADOR OU VALOR DE VARIAVEL', 1)
+        
+        if self.token_atual[0] == 'OPERADOR LÓGICO' and self.token_atual[1] == '!': #NEGAÇÃO
             self.negacao()
+
+        # EXPRESSÕES (LÓGICA OU ARITMETICA)
+        elif self.token_atual[0] == 'IDENTIFICADOR' or self.token_atual[0] == 'NUMERO INTEIRO' or self.token_atual[0] == 'NUMERO DECIMAL' or self.token_atual[0] == 'BOOLEANO' or self.token_atual[0] == 'STRING':
+            self.proximo_token()
+
+            if(linha_codigo != self.token_atual[2]):
+                self.erro_linha('OPERADOR LÓGICO OU ARITMÉTICO', 1)
+
+            if self.token_atual[0] == 'OPERADOR LÓGICO':
+                self.expressao_logica()
+            elif self.token_atual[0] == 'OPERADOR ARITMÉTICO':
+                self.expressao_arit()
+            else:
+                self.erro('OPERADOR LÓGICO OU ARITMÉTICO', 1)
         else:
-            # Lidar com outras expressões
-            pass
+            self.erro('OPERADOR LÓGICO "!", IDENTIFICADOR, NUMERO INTEIRO, DECIMAL, BOOLEANO OU STRING', 1)
 
     def negacao(self):
-        self.consumir_token(Token.PALAVRA_RESERVADA, "!")
-        self.expressao()
+        self.expressao_logica()
+
+    def expressao_logica(self):
+        linha_codigo = self.token_atual[2]
+        self.proximo_token()
+
+    def expressao_arit(self):
+        linha_codigo = self.token_atual[2]
+
+        self.proximo_token()
+
+        if(linha_codigo == self.token_atual[2]):
+            self.expressao_simples()
+        else:
+            self.erro_linha('IDENTIFICADOR, NUMERO INTEIRO, DECIMAL, BOOLEANO OU STRING', 1)
 
     def expressao_simples(self):
-        if self.proximo_token() and self.proximo_token().tipo == Token.IDENTIFICADOR:
-            self.consumir_token(Token.IDENTIFICADOR)
-        elif self.proximo_token() and self.proximo_token().tipo == Token.VARIÁVEL:
-            self.consumir_token(Token.VARIÁVEL)
-        else:
-            # Lidar com outros casos de expressão simples
-            pass
+
+        if self.token_atual[0] != 'IDENTIFICADOR' and self.token_atual[0] != 'NUMERO INTEIRO' and self.token_atual[0] != 'NUMERO DECIMAL' and self.token_atual[0] != 'BOOLEANO' and self.token_atual[0] != 'STRING':
+            self.erro('IDENTIFICADOR, NUMERO INTEIRO, DECIMAL, BOOLEANO OU STRING', 1)        
