@@ -22,7 +22,7 @@ class Lexico:
         'OPERADOR LÓGICO': r'\|\||&&|!',
         'OPERADOR RELACIONAL': r'>=|>|<=|<',
         'ATRIBUIÇÃO': r'=',
-        'SÍMBOLOS': r'[():,;]',
+        'SÍMBOLOS': r'[\[\]():,]',
         'ESPAÇO EM BRANCO': r'\s',
         'QUEBRA DE LINHA': r'\n',
     }

@@ -1,6 +1,5 @@
 from lexico import Lexico
 from sintatico import Sintatico
-from token_1 import Token
 
 nome_arquivo = './data/codigo.txt'
 analisador_lexico = Lexico(nome_arquivo)

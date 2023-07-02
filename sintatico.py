@@ -1,4 +1,3 @@
-from lexico import Lexico
 from token_1 import Token
 
 class Sintatico:
@@ -6,6 +5,7 @@ class Sintatico:
     def __init__(self, tokens):
         self.tokens = tokens
         self.indice = 0
+        self.linha_atual = 0
         self.token_atual = None
 
     def proximo_token(self):
@@ -22,42 +22,63 @@ class Sintatico:
             mensagem = f"Erro na linha {self.token_atual[2]}. Esperado: {esperado}. Encontrado: {self.token_atual[0]} \"{self.token_atual[1]}\""
  
         raise Exception(mensagem)
+    
+    def erro_linha(self, esperado):
+    
+        raise Exception(f"Fim da linha {self.token_atual[2] - 1}. Esperado: {esperado}")
 
     def programa(self):
-        # (Dúvida) a análise é feita por linha?
-        # PRECISO DO ; no final de cada linha para fazer algum tipo de marcador.
-        # Falta a definição de constantes (tipo PI) 
+        
         self.proximo_token()
+        linha_codigo = self.token_atual[2]
         if self.token_atual[0] != 'PALAVRA RESERVADA' or self.token_atual[1] != 'static':
             self.erro('Palavra reservada "static"')
 
         self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('Palavra reservada "void"')
+
         if self.token_atual[0] != 'PALAVRA RESERVADA' or self.token_atual[1] != 'void':
             self.erro('Palavra reservada "void"')
 
         self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('Palavra reservada "Main"') 
+            
         if self.token_atual[0] != 'PALAVRA RESERVADA' or self.token_atual[1] != 'Main':
             self.erro('Palavra reservada "Main"')
 
         self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('Simbolo "("') 
         if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != '(':
             self.erro('Simbolo "("')
-        
+
         self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('Palavra reservada "string[]"') 
         if self.token_atual[0] != 'PALAVRA RESERVADA' or self.token_atual[1] != 'string[]':
             self.erro('Palavra reservada "string[]"')
 
         self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('Palavra reservada "args"') 
         if self.token_atual[0] != 'PALAVRA RESERVADA' or self.token_atual[1] != 'args':
             self.erro('Palavra reservada "args"')  
 
         self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('Simbolo ")"')    
         if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ')':
             self.erro('Simbolo ")"')
+            
 
         self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('Simbolo ":"')  
+
         if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ':':
-            self.erro('Simbolo ":"')
+            self.erro('Simbolo ":"')   
 
         self.declaracoes()
 
@@ -71,33 +92,47 @@ class Sintatico:
             while self.token_atual[0] == 'TIPO DE DADO':
                 self.declaracao()
 
-    def declaracao(self):
+    def declaracao(self): # CRIAR A CONDICIONAL DO CONST -> CONST IDENTIFICADOR VALOR
+        linha_codigo = self.token_atual[2]
 
         self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('IDENTIFICADOR') 
         if self.token_atual[0] != 'IDENTIFICADOR':
             self.erro('IDENTIFICADOR')
 
         self.proximo_token()
+        if(linha_codigo == self.token_atual[2]):
+            if (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == '['):
+                self.proximo_token()
+                if(linha_codigo != self.token_atual[2]):
+                    self.erro_linha('NUMERO INTEIRO') 
+                
+                if self.token_atual[0] != 'NUMERO INTEIRO':
+                    self.erro('NUMERO INTEIRO')
+                else:
+                    self.proximo_token()
+                    if(linha_codigo != self.token_atual[2]):
+                        self.erro_linha('Simbolo "]"') 
 
-        if (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == '['):
-            self.proximo_token()
-            if self.token_atual[0] != 'NUMERO INTEIRO':
-                self.erro('NUMERO INTEIRO')
+                    if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ']':
+                        self.erro('Simbolo "]"')
+
+                    self.proximo_token()
+                    if(linha_codigo == self.token_atual[2]): 
+                        if (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == ','):
+                            self.declaracao()
+                        else:
+                            self.erro('Simbolo ","')
+                    else:
+                        self.erro_linha('Simbolo ","')
+
+            elif (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == ','):
+                self.declaracao()
             else:
-                self.proximo_token()
-                if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ']':
-                    self.erro('Simbolo "]"')
+                self.erro('SIMBOLO "[" OU ","')
 
-                self.proximo_token()
-                if (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == ','):
-                    self.declaracao()
-        elif (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == ','):
-            self.declaracao()
-        elif (self.token_atual[0] == 'SÍMBOLOS' and self.token_atual[1] == ';'):
-            pass
-        else:
-            self.erro('SIMBOLO "[" OU SIMBOLO ","')
-
+        
     def comandos(self):
         while self.proximo_token() and self.proximo_token().tipo != Token.COMENTÁRIO:
             self.comando()
