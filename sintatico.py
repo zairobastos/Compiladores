@@ -19,6 +19,12 @@ class Sintatico:
         else:
             return ('FIM DO CÓDIGO', 'EOF', self.tokens[self.indice - 1][2])
 
+    def get_else(self):
+        if(self.indice < len(self.tokens)):
+            return self.tokens[self.indice][1] == 'else' and self.tokens[self.indice][0] == 'PALAVRA RESERVADA'
+        else:
+            return ('FIM DO CÓDIGO', 'EOF', self.tokens[self.indice - 1][2])
+
     def erro(self, esperado):
         if self.token_atual is None:
             mensagem = f"Fim do código. Esperado: {esperado}"
@@ -100,7 +106,7 @@ class Sintatico:
     
     def declaracoes(self):
         
-        if self.token_atual[0] != 'TIPO DE DADO' and self.token_atual[0] != 'CONSTANTE':
+        if self.token_atual[0] != 'TIPO DE DADO' and self.token_atual[0] != 'CONSTANTE' and self.token_atual[1] != '}':
             self.erro('TIPO DE DADO OU "CONST"')
         else:
             while self.token_atual[0] == 'TIPO DE DADO' or self.token_atual[0] == 'CONSTANTE':
@@ -148,6 +154,9 @@ class Sintatico:
                 self.declaracao()
             else:
                 self.erro('SIMBOLO "[" OU ","')
+
+        elif self.token_atual[0] != 'TIPO DE DADO':
+            pass
         else:
             self.declaracoes()
 
@@ -168,7 +177,7 @@ class Sintatico:
     
     def comandos(self):
 
-        if self.token_atual[0] != 'IDENTIFICADOR' and self.token_atual[1] != 'if':
+        if self.token_atual[0] != 'IDENTIFICADOR' and self.token_atual[1] != 'if' and self.token_atual[1] != '}':
             self.erro('IDENTIFICADOR OU PALAVRA RESERVADA "if"')
         else:
             while self.token_atual[0] == 'IDENTIFICADOR' or (self.token_atual[0] == 'PALAVRA RESERVADA' and self.token_atual[1] == 'if'):
@@ -220,7 +229,7 @@ class Sintatico:
 
         if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ')':
             self.erro('SÍMBOLO ")"')
-
+    
         self.proximo_token()
         if(linha_codigo != self.token_atual[2]):
             self.erro_linha('Simbolo "{"', 1)  
@@ -237,14 +246,11 @@ class Sintatico:
         else:
             self.declaracoes()
             self.comandos()
-
-        have_else = (self.get_two_ahead()[1] == 'else' and self.get_two_ahead()[0] == 'PALAVRA RESERVADA')
-
-        self.proximo_token()
+        
         if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != '}':
             self.erro('SÍMBOLO "}"')
         
-        if have_else:
+        if self.get_else():
             self.proximo_token() # else
             self.proximo_token()
 
@@ -261,7 +267,6 @@ class Sintatico:
                 self.declaracoes()
                 self.comandos()
 
-            self.proximo_token()
             if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != '}':
                 self.erro('SÍMBOLO "}"')
 
