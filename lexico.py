@@ -7,7 +7,7 @@ class Lexico:
     # Define as expressões regulares para cada tipo de token
     regexs = {
         'COMENTÁRIO': r'\/\*[^#]*\*\/',
-        'PALAVRA RESERVADA': r'static|void|Main|if|args|string\[\]',
+        'PALAVRA RESERVADA': r'static|void|Main|if|else|args|string\[\]',
         'TIPO DE DADO': r'int|decimal|bool|string',
         'CONSTANTE': r'const',
         'IDENTIFICADOR': r'[a-z_][a-zA-Z0-9_]*',
@@ -22,7 +22,7 @@ class Lexico:
         'OPERADOR LÓGICO': r'\|\||&&|!',
         'OPERADOR RELACIONAL': r'>=|>|<=|<',
         'ATRIBUIÇÃO': r'=',
-        'SÍMBOLOS': r'[\[\]():,]',
+        'SÍMBOLOS': r'[\[\]({}):,]',
         'ESPAÇO EM BRANCO': r'\s',
         'QUEBRA DE LINHA': r'\n',
     }

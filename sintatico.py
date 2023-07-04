@@ -15,6 +15,12 @@ class Sintatico:
         else:
             self.token_atual = None
 
+    def get_two_ahead(self):
+        if(self.indice < len(self.tokens)):
+            return self.tokens[self.indice + 1]
+        else:
+            return None;
+
     def erro(self, esperado):
         if self.token_atual is None:
             mensagem = f"Fim do código. Esperado: {esperado}"
@@ -70,9 +76,9 @@ class Sintatico:
 
         self.proximo_token()
         if(linha_codigo != self.token_atual[2]):
-            self.erro_linha('Simbolo ")"', 1)    
+            self.erro_linha('SÍMBOLO ")"', 1)    
         if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ')':
-            self.erro('Simbolo ")"')
+            self.erro('SÍMBOLO ")"')
             
 
         self.proximo_token()
@@ -80,7 +86,7 @@ class Sintatico:
             self.erro_linha('Simbolo ":"', 1)  
 
         if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ':':
-            self.erro('Simbolo ":"')   
+            self.erro('SÍMBOLO ":"')   
 
         self.proximo_token()
         if(linha_codigo != self.token_atual[2]):
@@ -169,6 +175,7 @@ class Sintatico:
         else:
             while self.token_atual[0] == 'IDENTIFICADOR' or (self.token_atual[0] == 'PALAVRA RESERVADA' and self.token_atual[1] == 'if'):
                 self.comando()
+                self.proximo_token()
 
     def comando(self):
         if self.token_atual[0] == 'IDENTIFICADOR':
@@ -179,31 +186,90 @@ class Sintatico:
             self.erro('IDENTIFICADOR OU PALAVRA RESERVADA "if"')
 
     def atribuicao(self):
-        self.consumir_token(Token.IDENTIFICADOR)
-        self.consumir_token(Token.ATRIBUIÇÃO)
-        if self.proximo_token() and self.proximo_token().tipo == Token.IDENTIFICADOR:
-            self.expressao_simples()
-        else:
+        linha_codigo = self.token_atual[2]
+
+        self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('ATRIBUIÇÃO', 1) 
+
+        if self.token_atual[0] != 'ATRIBUIÇÃO':
+            self.erro('ATRIBUIÇÃO')
+
+        if(self.get_two_ahead()[2] == linha_codigo):
             self.expressao()
+        else:
+            self.proximo_token()
+            if(linha_codigo != self.token_atual[2]):
+                self.erro_linha('IDENTIFICADOR, NUMERO INTEIRO, DECIMAL, BOOLEANO OU STRING', 1)
+            
+            self.expressao_simples()
 
     def condicional(self):
-        self.consumir_token(Token.PALAVRA_RESERVADA, "if")
-        self.consumir_token(Token.SÍMBOLOS, "(")
+        linha_codigo = self.token_atual[2]
+
+        self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('SÍMBOLO "("', 1) 
+
+        if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != '(':
+            self.erro('SÍMBOLO "("')
+
         self.expressao()
-        if self.proximo_token() and self.proximo_token().tipo == Token.SÍMBOLOS and self.proximo_token().valor in ("==", "!="):
-            self.consumir_token(Token.SÍMBOLOS)
-            self.expressao()
-        self.consumir_token(Token.SÍMBOLOS, ")")
-        self.consumir_token(Token.SÍMBOLOS, "{")
+
+        self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('SÍMBOLO DE COMPARAÇÃO OU OPERADOR RELACIONAL', 1) 
+
+        if self.token_atual[0] != 'SÍMBOLO DE COMPARAÇÃO' and self.token_atual[0] != 'OPERADOR RELACIONAL':
+            self.erro('SÍMBOLO DE COMPARAÇÃO OU OPERADOR RELACIONAL')
+        
+        self.expressao()
+
+        self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('SÍMBOLO ")"', 1) 
+
+        if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != ')':
+            self.erro('SÍMBOLO ")"')
+
+        self.proximo_token()
+        if(linha_codigo != self.token_atual[2]):
+            self.erro_linha('Simbolo "{"', 1)  
+
+        if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != '{':
+            self.erro('SÍMBOLO "{"') 
+
+        self.proximo_token()
+        if(linha_codigo == self.token_atual[2]):
+            self.erro_linha(f'{self.token_atual[0]} {self.token_atual[1]} na linha {self.token_atual[2]}', 0)
+        
         self.declaracoes()
         self.comandos()
-        self.consumir_token(Token.SÍMBOLOS, "}")
-        if self.proximo_token() and self.proximo_token().tipo == Token.PALAVRA_RESERVADA and self.proximo_token().valor == "else":
-            self.consumir_token(Token.PALAVRA_RESERVADA, "else")
-            self.consumir_token(Token.SÍMBOLOS, "{")
+
+        have_else = (self.get_two_ahead()[1] == 'else' and self.get_two_ahead()[0] == 'PALAVRA RESERVADA')
+
+        self.proximo_token()
+        if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != '}':
+            self.erro('SÍMBOLO "}"')
+        
+        if have_else:
+            self.proximo_token() # else
+            self.proximo_token()
+
+            if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != '{':
+                self.erro('SÍMBOLO "{"')
+
+            self.proximo_token()
+            if(linha_codigo == self.token_atual[2]):
+                self.erro_linha(f'{self.token_atual[0]} {self.token_atual[1]} na linha {self.token_atual[2]}', 0)
+            
             self.declaracoes()
             self.comandos()
-            self.consumir_token(Token.SÍMBOLOS, "}")
+
+            self.proximo_token()
+            if self.token_atual[0] != 'SÍMBOLOS' or self.token_atual[1] != '}':
+                self.erro('SÍMBOLO "}"')
+
 
     def expressao(self):
         linha_codigo = self.token_atual[2]
